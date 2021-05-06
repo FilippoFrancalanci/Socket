@@ -52,7 +52,7 @@ namespace socket
             MyPort = rd.Next(65000, 65101);
             lblPort.Content = MyPort;
         }
-        //non viene più salvato il socket bensi il contatto del destinatario
+        //non viene più Creato il source socket bensi il contatto del/dei destinatario/i
         private void btnCreaSocket_Click(object sender, RoutedEventArgs e)
         {
 
@@ -77,6 +77,7 @@ namespace socket
             {
                 stInvio.IsEnabled = true;
             }
+            combxContatti.SelectedIndex = SocketCreati - 1;
         }
 
         private void btnInvia_Click(object sender, RoutedEventArgs e)
@@ -107,6 +108,20 @@ namespace socket
                         messaggio += messaggio + Encoding.ASCII.GetString(ByteRicevuti, 0, nByteRicevuti);
                         this.Dispatcher.BeginInvoke(new Action(() =>
                         {
+                            string[] getIPAndPort = messaggio.Split(':');
+                            bool ok = false;
+                            int index = 0;
+                            while (!ok && index < Contatti.Count)
+                            {
+                                if (Contatti[index].Ip == getIPAndPort[0] && Contatti[index].Port == int.Parse(getIPAndPort[1]))
+                                {
+                                    string nuovoMessaggio;
+                                    nuovoMessaggio = $"{Contatti[index].Nome} {Contatti[index].Cognome}:{getIPAndPort[2]}";
+                                    messaggio = nuovoMessaggio;
+                                    ok = true;
+                                }
+                                index++;
+                            }
                             lstMes.Items.Add($"{messaggio}");
                         }));
                     }
@@ -120,7 +135,7 @@ namespace socket
         {
             IPAddress ipDestinatario = IPAddress.Parse(c.Ip);
             //invia il messaggio con le specifiche dell'indirizzo IP e porta che ha inviato il messaggio
-            Byte[] byteInviati = Encoding.ASCII.GetBytes($@"[{MyIp} : {MyPort}]: {messaggio}");
+            Byte[] byteInviati = Encoding.ASCII.GetBytes($@"{MyIp}:{MyPort}: {messaggio}");
             Socket s = new Socket(ipDestinatario.AddressFamily, SocketType.Dgram, ProtocolType.Udp);
             IPEndPoint dest = c.DestSocket;
             s.SendTo(byteInviati, dest);
