@@ -291,7 +291,7 @@ namespace socket
 
         private void ConfermaInvio()
         {
-            if(tbxMessage.Text != "")
+            if(tbxMessage.Text != ""&& !tbxMessage.Text.Contains(":"))
             {
                 btnInvia.IsEnabled = true;
             }
