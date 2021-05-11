@@ -24,6 +24,7 @@ namespace socket
     /// </summary>
     public partial class MainWindow : Window
     {
+        
         //numero di destination socket creati
         public int SocketCreati = 0;
         //indica se è il socket source è stato creato 
@@ -111,6 +112,7 @@ namespace socket
                             string[] getIPAndPort = messaggio.Split(':');
                             bool ok = false;
                             int index = 0;
+                            //va a controllare se il messaggio inviato lo ha salvato nella rubrica contatti
                             while (!ok && index < Contatti.Count)
                             {
                                 if (Contatti[index].Ip == getIPAndPort[0] && Contatti[index].Port == int.Parse(getIPAndPort[1]))
@@ -237,7 +239,8 @@ namespace socket
             if(interfacciaIsEnable && tbxCognome.Text.Length>0 && tbxIP.Text.Length > 0 && tbxPorta.Text.Length > 0 && tbxNome.Text.Length > 0)
             {
                 IPAddress ip;
-                if(IPAddress.TryParse(tbxIP.Text,out ip))
+                int port;
+                if(IPAddress.TryParse(tbxIP.Text,out ip) && int.TryParse(tbxPorta.Text,out port))
                 {
                     btnCreaSocket.IsEnabled = true;
                 }
@@ -276,19 +279,19 @@ namespace socket
         private void btnConfermaInterf_Click(object sender, RoutedEventArgs e)
         {
             interfacciaIsEnable = true;
-            sourceSocket = new IPEndPoint(IPAddress.Parse(MyIp), MyPort);
+            sourceSocket = new IPEndPoint(IPAddress.Parse(MyIp), MyPort); //crea il socket
             btnConfermaInterf.IsEnabled = false;
             btnEthernet.IsEnabled = false;
             btnWIFI.IsEnabled = false;
-            Thread ricezione = new Thread(new ParameterizedThreadStart(SocketRecive));
-            ricezione.Start(sourceSocket);
+            Thread ricezione = new Thread(new ParameterizedThreadStart(SocketRecive)); //crea il thread per la ricezione
+            ricezione.Start(sourceSocket); // fa partire il thread della ricezione
         }
 
         private void tbxMessage_TextChanged(object sender, TextChangedEventArgs e)
         {
             ConfermaInvio();
         }
-
+        //controllo se è possibile inviare
         private void ConfermaInvio()
         {
             if(tbxMessage.Text != ""&& !tbxMessage.Text.Contains(":"))
